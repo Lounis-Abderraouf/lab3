@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick-Poll</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .option-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .option-item input {
+            flex: 1;
+        }
+
+        .btn-remove {
+            padding: 12px 15px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .btn-remove:hover {
+            background: #e84118;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .poll-card {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .poll-question {
+            font-size: 1.3em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .poll-id {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+        }
+
+        .vote-option {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vote-option:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .vote-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .vote-option input[type="radio"] {
+            cursor: pointer;
+        }
+
+        .result-option {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            opacity: 0.1;
+            transition: width 0.6s ease-out;
+        }
+
+        .result-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-text {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .result-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .result-percentage {
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .error {
+            color: #ff4757;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .total-votes {
+            text-align: center;
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+
+            .logo h1 {
+                font-size: 2em;
+            }
+
+            .result-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🗳️ Quick-Poll</h1>
+            <p>Create and vote on polls instantly</p>
+        </div>
+
+        <!-- Create Poll View -->
+        <div id="createView" class="view active">
+            <form id="createPollForm">
+                <div class="form-group">
+                    <label for="pollQuestion">Poll Question</label>
+                    <input type="text" id="pollQuestion" placeholder="What's your question?" required>
+                    <div class="error" id="questionError">Please enter a question</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Answer Options</label>
+                    <div id="optionsList">
+                        <div class="option-item">
+                            <input type="text" class="option-input" placeholder="Option 1" required>
+                        </div>
+                        <div class="option-item">
+                            <input type="text" class="option-input" placeholder="Option 2" required>
+                        </div>
+                    </div>
+                    <div class="error" id="optionsError">Please add at least 2 options</div>
+                    <button type="button" class="btn btn-secondary" id="addOptionBtn">+ Add Another Option</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create Poll</button>
+            </form>
+        </div>
+
+        <!-- Vote View -->
+        <div id="voteView" class="view">
+            <div class="poll-card">
+                <span class="poll-id" id="pollIdDisplay"></span>
+                <div class="poll-question" id="voteQuestion"></div>
+                <form id="voteForm">
+                    <div id="voteOptions"></div>
+                    <button type="submit" class="btn btn-primary">Submit Vote</button>
+                </form>
+            </div>
+            <button class="btn btn-secondary" id="newPollBtn">Create New Poll</button>
+        </div>
+
+        <!-- Results View -->
+        <div id="resultsView" class="view">
+            <div class="poll-card">
+                <span class="poll-id" id="pollIdResults"></span>
+                <div class="poll-question" id="resultsQuestion"></div>
+                <div id="resultsContainer"></div>
+                <div class="total-votes" id="totalVotes"></div>
+            </div>
+            <button class="btn btn-secondary" id="createAnotherBtn">Create Another Poll</button>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentPoll = null;
+        let hasVoted = false;
+
+        // Generate unique poll ID
+        function generatePollId() {
+            return 'POLL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        }
+
+        // Get elements
+        const createView = document.getElementById('createView');
+        const voteView = document.getElementById('voteView');
+        const resultsView = document.getElementById('resultsView');
+        const createPollForm = document.getElementById('createPollForm');
+        const optionsList = document.getElementById('optionsList');
+        const addOptionBtn = document.getElementById('addOptionBtn');
+        const voteForm = document.getElementById('voteForm');
+        const newPollBtn = document.getElementById('newPollBtn');
+        const createAnotherBtn = document.getElementById('createAnotherBtn');
+
+        // Switch between views
+        function showView(view) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            view.classList.add('active');
+        }
+
+        // Add option input
+        addOptionBtn.addEventListener('click', () => {
+            const optionCount = optionsList.children.length + 1;
+            const optionItem = document.createElement('div');
+            optionItem.className = 'option-item';
+            optionItem.innerHTML = `
+                <input type="text" class="option-input" placeholder="Option ${optionCount}" required>
+                <button type="button" class="btn-remove">✕</button>
+            `;
+            
+            // Remove option handler
+            optionItem.querySelector('.btn-remove').addEventListener('click', () => {
+                if (optionsList.children.length > 2) {
+                    optionItem.remove();
+                }
+            });
+            
+            optionsList.appendChild(optionItem);
+        });
+
+        // Create poll handler
+        createPollForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const question = document.getElementById('pollQuestion').value.trim();
+            const optionInputs = document.querySelectorAll('.option-input');
+            const options = Array.from(optionInputs)
+                .map(input => input.value.trim())
+                .filter(val => val !== '');
+
+            // Validation
+            if (!question) {
+                document.getElementById('questionError').classList.add('show');
+                return;
+            }
+            if (options.length < 2) {
+                document.getElementById('optionsError').classList.add('show');
+                return;
+            }
+
+            // Create poll object
+            currentPoll = {
+                id: generatePollId(),
+                question: question,
+                options: options.map(opt => ({
+                    text: opt,
+                    votes: 0
+                }))
+            };
+
+            // Reset form
+            createPollForm.reset();
+            document.querySelectorAll('.error').forEach(err => err.classList.remove('show'));
+            
+            // Remove extra options
+            while (optionsList.children.length > 2) {
+                optionsList.lastChild.remove();
+            }
+
+            // Check if user already voted
+            const votedPollId = localStorage.getItem('votedPollId');
+            hasVoted = false;
+
+            // Show vote view
+            displayVoteView();
+        });
+
+        // Display vote view
+        function displayVoteView() {
+            document.getElementById('pollIdDisplay').textContent = currentPoll.id;
+            document.getElementById('voteQuestion').textContent = currentPoll.question;
+            
+            const voteOptions = document.getElementById('voteOptions');
+            voteOptions.innerHTML = '';
+            
+            currentPoll.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'vote-option';
+                optionDiv.innerHTML = `
+                    <input type="radio" name="vote" value="${index}" id="option${index}" required>
+                    <label for="option${index}" style="cursor: pointer; flex: 1;">${option.text}</label>
+                `;
+                
+                optionDiv.addEventListener('click', () => {
+                    document.getElementById(`option${index}`).checked = true;
+                    document.querySelectorAll('.vote-option').forEach(opt => opt.classList.remove('selected'));
+                    optionDiv.classList.add('selected');
+                });
+                
+                voteOptions.appendChild(optionDiv);
+            });
+
+            showView(voteView);
+        }
+
+        // Vote form handler
+        voteForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Check if already voted
+            if (hasVoted) {
+                alert('You have already voted on this poll!');
+                return;
+            }
+
+            const selectedOption = document.querySelector('input[name="vote"]:checked');
+            if (!selectedOption) return;
+
+            const optionIndex = parseInt(selectedOption.value);
+            currentPoll.options[optionIndex].votes++;
+            
+            // Mark as voted
+            hasVoted = true;
+            localStorage.setItem('votedPollId', currentPoll.id);
+
+            // Show results
+            displayResults();
+        });
+
+        // Display results
+        function displayResults() {
+            document.getElementById('pollIdResults').textContent = currentPoll.id;
+            document.getElementById('resultsQuestion').textContent = currentPoll.question;
+            
+            const totalVotes = currentPoll.options.reduce((sum, opt) => sum + opt.votes, 0);
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+
+            currentPoll.options.forEach(option => {
+                const percentage = totalVotes > 0 ? ((option.votes / totalVotes) * 100).toFixed(1) : 0;
+                
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'result-option';
+                resultDiv.innerHTML = `
+                    <div class="result-bar" style="width: ${percentage}%"></div>
+                    <div class="result-content">
+                        <span class="result-text">${option.text}</span>
+                        <div class="result-stats">
+                            <span class="result-percentage">${percentage}%</span>
+                            <span>${option.votes} vote${option.votes !== 1 ? 's' : ''}</span>
+                        </div>
+                    </div>
+                `;
+                resultsContainer.appendChild(resultDiv);
+            });
+
+            document.getElementById('totalVotes').textContent = `Total votes: ${totalVotes}`;
+            showView(resultsView);
+        }
+
+        // New poll buttons
+        newPollBtn.addEventListener('click', () => {
+            currentPoll = null;
+            hasVoted = false;
+            localStorage.removeItem('votedPollId');
+            showView(createView);
+        });
+
+        createAnotherBtn.addEventListener('click', () => {
+            currentPoll = null;
+            hasVoted = false;
+            localStorage.removeItem('votedPollId');
+            showView(createView);
+        });
+
+        // Remove option buttons for initial options
+        document.querySelectorAll('.btn-remove').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (optionsList.children.length > 2) {
+                    e.target.closest('.option-item').remove();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
